@@ -1,5 +1,5 @@
 
-    export const    showToast = (message, color) => {
+    export const showToast = (message, color) => {
         const toastMessageElement = document.querySelector('#toast')
         const toastBody = toastMessageElement.querySelector('.toast-body')
         const toastMessage = new bootstrap.Toast(toastMessageElement, {delay : 10000})
