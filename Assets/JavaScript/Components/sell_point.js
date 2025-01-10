@@ -1,17 +1,33 @@
+import {showToast} from "./Shared/toast.js";
+import {getInfo} from "../Services/sell_point.js";
 
-    <h1 class="text-center">Informations</h1>
-    <form class="mt-3" id="formSellPoint">
+    export const handleSellPoint = async (component, action = null, id = null) => {
+            let info
+            if (action === 'modify'){
+                 info = await getInfo(component, action, id)
+            }
+            if (info['errors']){
+                showToast(info['message'], 'bg-danger')
+            } else {
+                return info
+            }
+        }
+
+    export const displaySellPoint = (form, info) => {
+        form.innerHTML = ""
+        const schedule = JSON.parse(info['schedule'])
+        form.innerHTML = `
         <div class="row">
             <div class="col-6">
                 <div class="mb-3">
                     <label for="name" class="form-label">Nom du sell point * </label>
-                    <input type="text" class="form-control" id="name" aria-describedby="name">
+                    <input type="text" class="form-control" id="name" aria-describedby="name" value="${info['name']}">
                 </div>
             </div>
             <div class="col-5">
                 <div class="mb-3">
                     <label for="group_name" class="form-label">Appartenant au groupe</label>
-                    <input type="text" class="form-control" id="group_name" aria-describedby="group_name">
+                    <input type="text" class="form-control" id="group_name" aria-describedby="group_name" value="${info['group_name']}">
                 </div>
             </div>
             <div class="col-1 text-center">
@@ -22,7 +38,7 @@
             <div class="col-4">
                 <div class="mb-3">
                     <label for="address" class="form-label">Siret / Siren *</label>
-                    <input type="text" class="form-control" id="address" aria-describedby="address">
+                    <input type="text" class="form-control" id="address" aria-describedby="address" value="${info['siret']}">
                 </div>
             </div>
         </div>
@@ -43,7 +59,7 @@
                                <div class="d-flex justify-content-around">
                                    <div>
                                        <label for="mon_open">Ouverture :</label>
-                                       <input type="time">
+                                       <input type="time" value="${schedule[0]['open']}">
                                    </div>
 
                                     <div>
@@ -196,13 +212,13 @@
             <div class="col-6">
                 <div class="mb-3">
                     <label for="first_name" class="form-label">Prenom *</label>
-                    <input type="text" class="form-control" id="first_name" aria-describedby="first_name">
+                    <input type="text" class="form-control" id="first_name" aria-describedby="first_name" value="${info['first_name_director']}">
                 </div>
             </div>
             <div class="col-6">
                 <div class="mb-3">
                     <label for="last_name" class="form-label">Nom de famille *</label>
-                    <input type="text" class="form-control" id="last_name" aria-describedby="last_name">
+                    <input type="text" class="form-control" id="last_name" aria-describedby="last_name" value="${info['last_name_director']}">
                 </div>
             </div>
         </div>
@@ -212,7 +228,7 @@
         <div class="row">
             <div class="col-11">
                 <div class="mb-3">
-                    <input type="text" class="form-control" id="address" aria-describedby="address">
+                    <input type="text" class="form-control" id="address" aria-describedby="address" value="${info['label']}">
                 </div>
             </div>
             <div class="col-1">
@@ -222,24 +238,5 @@
         <div class="row">
             <div id="map" class="mb-5" style="width: 100%; height: 500px"></div>
         </div>
-    </form>
-
-    <script src="./Assets/JavaScript/Components/Shared/map.js" type="module"></script>
-    <script type="module">
-        import {showMap,addMarker} from "./Assets/JavaScript/Components/Shared/map.js";
-        import {handleSellPoint, displaySellPoint} from "./Assets/JavaScript/Components/sell_point.js";
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            const URL = new URLSearchParams(window.location.search)
-            let component = URL.get('component')
-            let action = URL.get('action')
-            let id
-            const formElement = document.querySelector('#formSellPoint')
-            action === 'modify' ? id = URL.get('id') : null
-            let info = await handleSellPoint(component, action, id)
-            console.log(info)
-            displaySellPoint(formElement, info['infos'][0])
-            const map = showMap(info['infos'][0]['coordonate_x'], info['infos'][0]['coordonate_y'], 15)
-            addMarker(map,info['infos'][0])
-        })
-    </script>
+        `
+    }

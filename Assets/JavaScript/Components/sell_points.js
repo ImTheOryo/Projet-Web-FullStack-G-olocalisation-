@@ -3,7 +3,7 @@
 
     export const handleSellPoints = async (component) => {
         const getAllInfosSellPoints = await getAllInfosSP(component)
-        if (getAllInfosSellPoints['errors'] === true){
+        if (getAllInfosSellPoints['errors']){
             showToast(getAllInfosSellPoints['message'],'bg-danger')
         } else {
            return getAllInfosSellPoints
@@ -11,11 +11,12 @@
 
     }
 
-    export const displaySellPoints = async (component, spinner, tbody, page, limit, sortBy = null) => {
+    export const displaySellPoints = async (component, spinner, tbody, page, limit, sortBy = null, pageCountElement, maxPage) => {
         spinner.classList.remove('d-none')
         const data = await getAllInfosSP(component, page, limit, sortBy)
         const componentAction = component.slice(0, component.length -1)
         tbody.innerHTML = ""
+        console.log(data)
         for (let i = 0; i < data['infos'].length; i++){
             tbody.innerHTML += `<tr>
               <th>${data['infos'][i]['id']}</th>
@@ -28,5 +29,7 @@
             </td>
             </tr>`
         }
+        pageCountElement.innerHTML = ""
+        pageCountElement.innerHTML = `${page}/${maxPage}`
         spinner.classList.add('d-none')
     }

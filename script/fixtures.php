@@ -6,45 +6,76 @@
     require './Includes/database.php';
     use GuzzleHttp\Client;
     use GuzzleHttp\Psr7\Request;
-    
+
+    $state = $pdo -> prepare("SET FOREIGN_KEY_CHECKS = 0");
+    $state -> execute();
+
+    $state = $pdo -> prepare("TRUNCATE `address`;");
+    try {
+        $state -> execute();
+    } catch (PDOException $e){
+        echo $e -> getMessage();
+    }
+    $state = $pdo -> prepare("TRUNCATE `groups`;");
+    try {
+        $state -> execute();
+    } catch (PDOException $e){
+        echo $e -> getMessage();
+    }
+    $state = $pdo -> prepare("TRUNCATE `sell_points`;");
+    try {
+        $state -> execute();
+    } catch (PDOException $e){
+        echo $e -> getMessage();
+    }
+    $state = $pdo -> prepare("TRUNCATE `users`;");
+    try {
+        $state -> execute();
+    } catch (PDOException $e){
+        echo $e -> getMessage();
+    }
+
+    $state = $pdo -> prepare("SET FOREIGN_KEY_CHECKS = 1");
+    $state -> execute();
+
     $faker = Faker\Factory::create('fr_FR');
     $company_name = FAKER\Factory::create('en_US');
 
     $schedule = [
         0 => [
             "day" => "Lundi",
-            "open" => "8.00",
-            "close" => "22.00"
+            "open" => "08:00:00",
+            "close" => "22:00:00"
         ],
         1 => [
             "day" => "Mardi",
-            "open" => "8.00",
-            "close" => "22.00"
+            "open" => "08:00:00",
+            "close" => "22:00:00"
         ],
         2 => [
             "day" => "Mercredi",
-            "open" => "8.00",
-            "close" => "22.00"
+            "open" => "08:00:00",
+            "close" => "22:00:00"
         ],
         3 => [
             "day" => "Jeudi",
-            "open" => "8.00",
-            "close" => "22.00"
+            "open" => "08:00:00",
+            "close" => "22:00:00"
         ],
         4 => [
             "day" => "Vendredi",
-            "open" => "8.00",
-            "close" => "22.00"
+            "open" => "08:00:00",
+            "close" => "22:00:00"
         ],
         5 => [
             "day" => "Samedi",
-            "open" => "8.00",
-            "close" => "22.00"
+            "open" => "08:00:00",
+            "close" => "22:00:00"
         ],
         6 => [
             "day" => "Dimanche",
             "open" => "Ferme",
-            "close" => "toute la journée"
+            "close" => "Ferme"
         ],
     ];
     $pdo -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

@@ -21,7 +21,7 @@
                         exit();
                     } else {
                         header("Content-Type: application/json");
-                        echo json_encode(['errors' => true,'message' => "Erreur lors de la recuperation des donnees"]);
+                        echo json_encode(['errors' => true,'message' => "Erreur lors de la recuperation des donnees : $sellPointsInfos"]);
                         exit();
                     }
 

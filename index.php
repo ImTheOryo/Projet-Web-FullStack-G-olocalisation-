@@ -29,7 +29,6 @@
         }
         exit();
     }
-
 ?>
 
 <!DOCTYPE html>

@@ -4,16 +4,15 @@
         $query = "SELECT sell_points.*, groups.group_name, adr.label, adr.departement, adr.coordonate_x, adr.coordonate_y FROM sell_points 
                   INNER JOIN address AS adr ON sell_points.id_address = adr.id 
                   LEFT JOIN `groups` ON sell_points.id_group = `groups`.id";
-
+        if ($sortBy !== null){
+            $query .= " ORDER BY $sortBy";
+        }
         if ($limit !== null){
             $query .= " LIMIT $limit";
         }
         if ($page !== 1 && $page !== null){
-            $page = ($page - 1) * 20;
+            $page = ($page - 1) * 15;
             $query .= " OFFSET $page";
-        }
-        if ($sortBy !== null){
-            $query .= " SORTBY $sortBy";
         }
         $state = $pdo -> prepare($query);
         try {

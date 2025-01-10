@@ -12,10 +12,10 @@
     <table class="table" id="table">
         <thead>
             <tr>
-                <th scope="col"><button type="button" class="btn">ID</button></th>
-                <th scope="col"><button type="button" class="btn">Nom</button></th>
-                <th scope="col"><button type="button" class="btn">Groupe</button></th>
-                <th scope="col"><button type="button" class="btn">Directeur</button></th>
+                <th scope="col"><button type="button" class="btn" id="btn-id" data-sortby="id">ID</button></th>
+                <th scope="col"><button type="button" class="btn" id="btn-name" data-sortby="name">Nom</button></th>
+                <th scope="col"><button type="button" class="btn" id="btn-group-name" data-sortby="group_name">Groupe</button></th>
+                <th scope="col"><button type="button" class="btn" id="btn-director" data-sortby="first_name_director">Directeur</button></th>
                 <th scope="col">Actions</th>
             </tr>
         </thead>
@@ -41,23 +41,33 @@
             const component = "sell_points"
             const nextBtn = document.querySelector('#next-page')
             const prevBtn = document.querySelector('#prev-page')
-            const maxPage = await getCount(component)
-            console.log(maxPage)
+            const pageCountElement = document.querySelector('#page-count')
+            const sortByElements = document.querySelectorAll('#table thead tr th button')
+            let maxPage = await getCount(component)
             let page = 1
+            let sortBy
+            maxPage = Math.ceil(maxPage['infos'][0]['sellPointsCount'] / limit)
 
-            displaySellPoints(component, spinner, tbody, page, limit)
+            displaySellPoints(component, spinner, tbody, page, limit, sortBy, pageCountElement, maxPage)
+
+            sortByElements.forEach(sortByElements => {
+                sortByElements.addEventListener('click', async (event) => {
+                    sortBy = event.target.getAttribute('data-sortby')
+                    displaySellPoints(component, spinner, tbody, page, limit, sortBy, pageCountElement, maxPage)
+                })
+            })
 
             nextBtn.addEventListener('click',async () => {
                 if (page < maxPage){
                     page ++
-                    displaySellPoints(component, spinner, tbody, page, limit)
+                    displaySellPoints(component, spinner, tbody, page, limit, sortBy, pageCountElement, maxPage )
                 }
             })
 
             prevBtn.addEventListener('click',async () => {
                 if (page  > 1){
                     page --
-                    displaySellPoints(component, spinner, tbody, page, limit)
+                    displaySellPoints(component, spinner, tbody, page, limit, sortBy, pageCountElement, maxPage)
                 }
             })
 

@@ -9,7 +9,6 @@
             const component = "map"
             const sellPointsInfos = await handleSellPoints(component)
             let map = showMap(47.1464, 2.8747, 7)
-            console.log(sellPointsInfos['infos'][0]['schedule'])
             for (let i = 0; i < sellPointsInfos['infos'].length; i++){
                 addMarker(map, sellPointsInfos['infos'][i])
             }
