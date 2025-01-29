@@ -1,7 +1,11 @@
 import {showToast} from "./Shared/toast.js";
-import {getInfo} from "../Services/sell_point.js";
+import {closeModal, showModal} from "./Shared/modal.js";
+import {createOrModifySellPoint, getInfo, getGroupName} from "../Services/sell_point.js";
+import {addMarker, addPopUp, updateView} from "./Shared/map.js";
+import {DAY_OF_THE_WEEK} from "../Config/constant.js";
 
-    export const handleSellPoint = async (component, action = null, id = null) => {
+
+    export const handleComponent = async (component, action = null, id = null) => {
             let info
             if (action === 'modify'){
                  info = await getInfo(component, action, id)
@@ -13,230 +17,205 @@ import {getInfo} from "../Services/sell_point.js";
             }
         }
 
+    export const handleDisplaySellPoint = async (map) => {
+        const URL = new URLSearchParams(window.location.search)
+        let marker = null, id = null, info = []
+        let component = URL.get('component')
+        let action = URL.get('action')
+        const formElement = document.querySelector('#formSellPoint')
+        handleGroupName()
+        action === 'modify' ? id = URL.get('id') : null
+        if (action === 'modify'){
+            info = await handleComponent(component, action, id)
+            displaySellPoint(formElement, info['infos'][0])
+            map = updateView(map, info['infos'][0],16)
+            marker = addMarker(map,info['infos'][0])
+            addPopUp(marker, info['infos'][0])
+        }
+        handleSchedule()
+        handleAddress(map, marker, info)
+
+        const sendForm = document.querySelector('#send-btn')
+        const cancel = document.querySelector('#cancel')
+        cancel.addEventListener('click', () => {
+            window.location.href = "index.php?component=sell_points"
+        })
+
+        sendForm.addEventListener('click', () => {
+            handleForm(map)
+        })
+    }
+
+    export const handleForm = async (map) => {
+
+        const form = document.querySelector('#formSellPoint')
+        const URL = new URLSearchParams(window.location.search)
+        let action = null
+        let id = null
+
+        if (!form.checkValidity()){
+            form.reportValidity()
+            return false
+        }
+
+        action = URL.get("action")
+        if (action === 'modify') {
+            action = 'modification'
+            id = URL.get('id')
+        }
+
+        let schedule = []
+        for (let i = 0; i < 7; i++) {
+            const open = document.querySelector(`#${DAY_OF_THE_WEEK[i]}-open`).value
+            const close = document.querySelector(`#${DAY_OF_THE_WEEK[i]}-close`).value
+            if (!document.querySelector(`#${DAY_OF_THE_WEEK[i]}-closed`).checked){
+                schedule.push({
+                    day: `${DAY_OF_THE_WEEK[i]}`,
+                    open: `${open}`,
+                    close: `${close}`
+                })
+            } else {
+                schedule.push({
+                    day: `${DAY_OF_THE_WEEK[i]}`,
+                    open: `Ferme`,
+                    close: `Ferme`
+                })
+            }
+        }
+        schedule = JSON.stringify(schedule)
+
+        const response = await createOrModifySellPoint(form, schedule, action, id)
+        if (response['success']){
+            switch (action){
+                case 'create':
+                    handleDisplaySellPoint(map)
+                    showToast(`L'utilisateur a été crée`, 'bg-success')
+                    break
+                case 'modification':
+                    handleDisplaySellPoint(map)
+                    showToast(`L'utilisateur a été modifier`, 'bg-success')
+                    break
+            }
+        }
+        if (response['errors']){
+            showToast(response['errors'], 'bg-danger')
+        }
+
+    }
+
+
+    export const handleAddress = (map, marker = null, infos = null) => {
+        const searchBtn = document.querySelector('#search-address-btn')
+        searchBtn.addEventListener('click', async () => {
+            const address = document.querySelector('#address').value
+            const result = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURI(address)}`)
+            if (result.ok){
+                const data = await result.json()
+                const addresses = []
+                for (let i = 0; i < data.features.length; i++ ){
+                    addresses.push(`<li class="list-group-item"><a href="#" data-address-id="${data.features[i].properties.id}">${data.features[i].properties.label}</a></li>`)
+                }
+                const modalMessage = `<div><ul class="list-group text-center mb-1">${addresses.join('')}</ul></div>`
+                const modal = showModal('Liste des addresses trouves', modalMessage)
+                const addressesLinkElement = document.querySelectorAll('.list-group-item a')
+                for (let i = 0; i < addressesLinkElement.length; i++){
+                    addressesLinkElement[i].addEventListener('click', (event) => {
+                        const clickedAddressId = event.target.getAttribute('data-address-id')
+                        const address = data.features.find(feature => feature.properties.id === clickedAddressId)
+                        document.querySelector('#address').value = address.properties.label
+
+                        const coordonates =
+                            {
+                                coordonate_x: address.geometry.coordinates[1],
+                                coordonate_y: address.geometry.coordinates[0]
+                            }
+                        closeModal(modal)
+                        marker !== null ? map.removeLayer(marker) : null
+                        map = updateView(map, coordonates, 16)
+                        marker = addMarker(map,coordonates)
+                        infos !== null && marker !== null ? addPopUp(marker, infos['infos'][0]) : null
+
+                    })
+                }
+            }
+
+        })
+    }
+    export const handleSchedule = () => {
+        for (let i = 0; i < 7; i++){
+            const btnClosedElement = document.querySelector(`#${DAY_OF_THE_WEEK[i]}-closed`)
+            const openElement = document.querySelector(`#${DAY_OF_THE_WEEK[i]}-open`)
+            const closeElement = document.querySelector(`#${DAY_OF_THE_WEEK[i]}-close`)
+            btnClosedElement.addEventListener('click', () => {
+                if (btnClosedElement.checked){
+                    openElement.required = false
+                    openElement.disabled = true
+                    openElement.value = ""
+                    closeElement.required = false
+                    closeElement.disabled = true
+                    closeElement.value = ""
+                    btnClosedElement.required = true
+                } else {
+                    openElement.required = true
+                    openElement.disabled = false
+                    closeElement.required = true
+                    closeElement.disabled = false
+                    btnClosedElement.required = false
+                }
+            })
+        }
+    }
+
     export const displaySellPoint = (form, info) => {
-        form.innerHTML = ""
         const schedule = JSON.parse(info['schedule'])
-        form.innerHTML = `
-        <div class="row">
-            <div class="col-6">
-                <div class="mb-3">
-                    <label for="name" class="form-label">Nom du sell point * </label>
-                    <input type="text" class="form-control" id="name" aria-describedby="name" value="${info['name']}">
-                </div>
-            </div>
-            <div class="col-5">
-                <div class="mb-3">
-                    <label for="group_name" class="form-label">Appartenant au groupe</label>
-                    <input type="text" class="form-control" id="group_name" aria-describedby="group_name" value="${info['group_name']}">
-                </div>
-            </div>
-            <div class="col-1 text-center">
-                <button class="btn btn-success" type="button">Add</button>
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-4">
-                <div class="mb-3">
-                    <label for="address" class="form-label">Siret / Siren *</label>
-                    <input type="text" class="form-control" id="address" aria-describedby="address" value="${info['siret']}">
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <h3 class="text-center">Horaire</h3>
-        </div>
-        <div class="row">
-            <div class="col-12 mb-3">
-                <div class="accordion" id="accordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header ">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
-                               Lundi
-                            </button>
-                        </h2>
-                        <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
-                            <div class="accordion-body" >
-                               <div class="d-flex justify-content-around">
-                                   <div>
-                                       <label for="mon_open">Ouverture :</label>
-                                       <input type="time" value="${schedule[0]['open']}">
-                                   </div>
+        const img = document.querySelector('#display-img')
+        const groupSelection = document.querySelector(` option[value="${info['id_group']}"]`)
+        const modifyBtnElement = document.querySelector('#send-btn')
 
-                                    <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header ">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="true" aria-controls="collapse2">
-                                Mardi
-                            </button>
-                        </h2>
-                        <div id="collapse2" class="accordion-collapse collapse hide" data-bs-parent="#accordionExample">
-                            <div class="accordion-body" >
-                                <div class="d-flex justify-content-around">
-                                    <div>
-                                        <label for="mon_open">Ouverture :</label>
-                                        <input type="time">
-                                    </div>
+        groupSelection.selected = true
+        for (let i = 0; i < 7; i++){
+            const openElement = document.querySelector(`#${DAY_OF_THE_WEEK[i]}-open`)
+            const closeElement = document.querySelector(`#${DAY_OF_THE_WEEK[i]}-close`)
+            const btnClosedElement = document.querySelector(`#${DAY_OF_THE_WEEK[i]}-closed`)
 
-                                    <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header ">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="true" aria-controls="collapse3">
-                                Mercredi
-                            </button>
-                        </h2>
-                        <div id="collapse3" class="accordion-collapse collapse hide" data-bs-parent="#accordionExample">
-                            <div class="accordion-body" >
-                                <div class="d-flex justify-content-around">
-                                    <div>
-                                        <label for="mon_open">Ouverture :</label>
-                                        <input type="time">
-                                    </div>
 
-                                    <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header ">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="true" aria-controls="collapse4">
-                                Jeudi
-                            </button>
-                        </h2>
-                        <div id="collapse4" class="accordion-collapse collapse hide" data-bs-parent="#accordionExample">
-                            <div class="accordion-body" >
-                                <div class="d-flex justify-content-around">
-                                    <div>
-                                        <label for="mon_open">Ouverture :</label>
-                                        <input type="time">
-                                    </div>
+            if (schedule[i]['open'] === "Ferme" && schedule[i]['close'] === "Ferme"){
+                openElement.required = false
+                openElement.disabled = true
+                closeElement.required = false
+                closeElement.disabled = true
+                btnClosedElement.checked = true
+                btnClosedElement.required = true
+            } else {
+                openElement.value = schedule[i]['open']
+                closeElement.value = schedule[i]['close']
+            }
+        }
 
-                                    <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header ">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="true" aria-controls="collapse5">
-                                Vendredi
-                            </button>
-                        </h2>
-                        <div id="collapse5" class="accordion-collapse collapse hide" data-bs-parent="#accordionExample">
-                            <div class="accordion-body" >
-                                <div class="d-flex justify-content-around">
-                                    <div>
-                                        <label for="mon_open">Ouverture :</label>
-                                        <input type="time">
-                                    </div>
+        modifyBtnElement.innerHTML = 'Modifier'
+        form.elements['name'].value = info['name']
+        form.elements['siren'].value = info['siret']
+        form.elements['first_name'].value = info['first_name_director']
+        form.elements['last_name'].value = info['last_name_director']
+        form.elements['address'].value = info['label']
 
-                                    <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header ">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6" aria-expanded="true" aria-controls="collapse6">
-                                Samedi
-                            </button>
-                        </h2>
-                        <div id="collapse6" class="accordion-collapse collapse hide" data-bs-parent="#accordionExample">
-                            <div class="accordion-body" >
-                                <div class="d-flex justify-content-around">
-                                    <div>
-                                        <label for="mon_open">Ouverture :</label>
-                                        <input type="time">
-                                    </div>
+        img.classList.remove('d-none')
+        img.src = info['image']
 
-                                    <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header ">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse7" aria-expanded="true" aria-controls="collapse7">
-                                Dimanche
-                            </button>
-                        </h2>
-                        <div id="collapse7" class="accordion-collapse collapse hide" data-bs-parent="#accordionExample">
-                            <div class="accordion-body" >
-                                <div class="d-flex justify-content-around">
-                                    <div>
-                                        <label for="mon_open">Ouverture :</label>
-                                        <input type="time">
-                                    </div>
+    }
 
-                                    <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <h3 class="text-center">Directeur</h3>
-        </div>
-        <div class="row">
-            <div class="col-6">
-                <div class="mb-3">
-                    <label for="first_name" class="form-label">Prenom *</label>
-                    <input type="text" class="form-control" id="first_name" aria-describedby="first_name" value="${info['first_name_director']}">
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="mb-3">
-                    <label for="last_name" class="form-label">Nom de famille *</label>
-                    <input type="text" class="form-control" id="last_name" aria-describedby="last_name" value="${info['last_name_director']}">
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <h3 class="text-center mt-3">Adresse</h3>
-        </div>
-        <div class="row">
-            <div class="col-11">
-                <div class="mb-3">
-                    <input type="text" class="form-control" id="address" aria-describedby="address" value="${info['label']}">
-                </div>
-            </div>
-            <div class="col-1">
-                <button type="button" class="btn btn-primary">Search</button>
-            </div>
-        </div>
-        <div class="row">
-            <div id="map" class="mb-5" style="width: 100%; height: 500px"></div>
-        </div>
-        `
+    export const handleGroupName = async () => {
+        const res = await getGroupName()
+        const groupNameElement = document.querySelector('#group_name')
+        let createOption = document.createElement('option')
+        createOption.textContent = 'Aucun'
+        createOption.value = "null"
+        groupNameElement.appendChild(createOption)
+
+        for (let i = 0; i < res['infos'].length; i++){
+            createOption = document.createElement('option')
+            createOption.textContent = `${res['infos'][i]['group_name']}`
+            createOption.value = `${res['infos'][i]['id']}`
+            groupNameElement.appendChild(createOption)
+        }
     }

@@ -1,7 +1,7 @@
 <?php
     function getSellPointsInfos(PDO $pdo, null | int $limit = null, null | int $page = null, null | string $sortBy = null)
     {
-        $query = "SELECT sell_points.*, groups.group_name, adr.label, adr.departement, adr.coordonate_x, adr.coordonate_y FROM sell_points 
+        $query = "SELECT sell_points.*, groups.group_name, groups.color, adr.label, adr.departement, adr.coordonate_x, adr.coordonate_y FROM sell_points 
                   INNER JOIN address AS adr ON sell_points.id_address = adr.id 
                   LEFT JOIN `groups` ON sell_points.id_group = `groups`.id";
         if ($sortBy !== null){

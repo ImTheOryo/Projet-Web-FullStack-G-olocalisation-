@@ -12,9 +12,9 @@
     <script src="./Assets/JavaScript/Services/user.js" type="module"></script>
     <script type="module">
 
-        import {handleUser} from "./Assets/JavaScript/Components/user.js";
+        import {handleLogIn} from "./Assets/JavaScript/Components/user.js";
 
         document.addEventListener("DOMContentLoaded", () => {
-            handleUser()
+            handleLogIn()
         })
     </script>

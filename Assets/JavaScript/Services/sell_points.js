@@ -1,5 +1,5 @@
 
-    export const getAllInfosSP = async (componentName, page = null, limit = null, sortBy = null) => {
+    export const getAllInfos = async (componentName, page = null, limit = null, sortBy = null) => {
         let request = `index.php?component=${componentName}&action=need_infos`
         if (page !== null){
             request += `&page=${page}`
@@ -38,4 +38,6 @@
             return await res.json()
         }
     }
+
+
 

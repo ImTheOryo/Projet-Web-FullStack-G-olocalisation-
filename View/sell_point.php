@@ -1,35 +1,49 @@
 
     <h1 class="text-center">Informations</h1>
-    <form class="mt-3" id="formSellPoint">
+    <form class="mt-3" id="formSellPoint" enctype="multipart/form-data">
         <div class="row">
             <div class="col-6">
                 <div class="mb-3">
                     <label for="name" class="form-label">Nom du sell point * </label>
-                    <input type="text" class="form-control" id="name" aria-describedby="name">
+                    <input type="text" class="form-control" id="name" name="name" aria-describedby="name" value="" required>
                 </div>
             </div>
-            <div class="col-5">
+            <div class="col-6">
                 <div class="mb-3">
                     <label for="group_name" class="form-label">Appartenant au groupe</label>
-                    <input type="text" class="form-control" id="group_name" aria-describedby="group_name">
+                    <select class="form-select" name="group_name" id="group_name">
+
+                    </select>
                 </div>
+
             </div>
-            <div class="col-1 text-center">
-                <button class="btn btn-success" type="button">Add</button>
-            </div>
+
         </div>
         <div class="row mt-3">
             <div class="col-4">
                 <div class="mb-3">
-                    <label for="address" class="form-label">Siret / Siren *</label>
-                    <input type="text" class="form-control" id="address" aria-describedby="address">
+                    <label for="siren" class="form-label">Siret / Siren *</label>
+                    <input type="text" class="form-control" id="siren"  name="siren" aria-describedby="address" required>
                 </div>
             </div>
         </div>
         <div class="row">
-            <h3 class="text-center">Horaire</h3>
+            <h3 class="text-center">Devanture</h3>
+            <div class="col-11">
+                <input type="file" class="form-control" id="image" name="image" required>
+            </div>
+            <div class="col-1">
+                <button class="btn btn-danger" type="button" id="delete-img">
+                    <i class="fa-regular fa-trash-can"></i>
+                </button>
+            </div>
+            <div class="col-11 d-flex justify-content-center">
+                <img src="" style="max-height: 500px; max-width: 500px" id="display-img" alt="devanture" class="d-none">
+            </div>
+
         </div>
         <div class="row">
+            <h3 class="text-center">Horaire</h3>
             <div class="col-12 mb-3">
                 <div class="accordion" id="accordion">
                     <div class="accordion-item">
@@ -42,14 +56,19 @@
                             <div class="accordion-body" >
                                <div class="d-flex justify-content-around">
                                    <div>
-                                       <label for="mon_open">Ouverture :</label>
-                                       <input type="time">
+                                       <label for="mon-open">Ouverture :</label>
+                                       <input type="time" id="mon-open" name="mon-open" required>
                                    </div>
 
                                     <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
+                                        <label for="mon-close">Fermeture :</label>
+                                        <input type="time" id="mon-close" name="mon-close" required>
                                     </div>
+
+                                   <div>
+                                       <label for="mon-closed">Ferme</label>
+                                       <input type="checkbox" id="mon-closed" name="mon-closed">
+                                   </div>
                                 </div>
                             </div>
                         </div>
@@ -64,13 +83,18 @@
                             <div class="accordion-body" >
                                 <div class="d-flex justify-content-around">
                                     <div>
-                                        <label for="mon_open">Ouverture :</label>
-                                        <input type="time">
+                                        <label for="tue-open">Ouverture :</label>
+                                        <input type="time" id="tue-open" name="tue-open" required>
                                     </div>
 
                                     <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
+                                        <label for="tue-close">Fermeture :</label>
+                                        <input type="time" id="tue-close" name="tue-close" required>
+                                    </div>
+
+                                    <div>
+                                        <label for="tue-closed">Ferme</label>
+                                        <input type="checkbox" id="tue-closed" name="tue-closed">
                                     </div>
                                 </div>
                             </div>
@@ -86,13 +110,18 @@
                             <div class="accordion-body" >
                                 <div class="d-flex justify-content-around">
                                     <div>
-                                        <label for="mon_open">Ouverture :</label>
-                                        <input type="time">
+                                        <label for="wen-open">Ouverture :</label>
+                                        <input type="time" id="wen-open" name="wen-open" required>
                                     </div>
 
                                     <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
+                                        <label for="wen-close">Fermeture :</label>
+                                        <input type="time" id="wen-close" name="wen-close" required>
+                                    </div>
+
+                                    <div>
+                                        <label for="wen-closed">Ferme</label>
+                                        <input type="checkbox" id="wen-closed" name="wen-closed">
                                     </div>
                                 </div>
                             </div>
@@ -108,13 +137,18 @@
                             <div class="accordion-body" >
                                 <div class="d-flex justify-content-around">
                                     <div>
-                                        <label for="mon_open">Ouverture :</label>
-                                        <input type="time">
+                                        <label for="thu-open">Ouverture :</label>
+                                        <input type="time" id="thu-open" name="thu-open" required>
                                     </div>
 
                                     <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
+                                        <label for="thu-close">Fermeture :</label>
+                                        <input type="time" id="thu-close" name="thu-close" required>
+                                    </div>
+
+                                    <div>
+                                        <label for="thu-closed">Ferme</label>
+                                        <input type="checkbox" id="thu-closed" name="thu-closed">
                                     </div>
                                 </div>
                             </div>
@@ -127,16 +161,21 @@
                             </button>
                         </h2>
                         <div id="collapse5" class="accordion-collapse collapse hide" data-bs-parent="#accordionExample">
-                            <div class="accordion-body" >
+                            <div class="accordion-body">
                                 <div class="d-flex justify-content-around">
                                     <div>
-                                        <label for="mon_open">Ouverture :</label>
-                                        <input type="time">
+                                        <label for="fry-open">Ouverture :</label>
+                                        <input type="time" id="fry-open" name="fry-open" required>
                                     </div>
 
                                     <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
+                                        <label for="fry-close">Fermeture :</label>
+                                        <input type="time" id="fry-close" name="fry-close" required>
+                                    </div>
+
+                                    <div>
+                                        <label for="fry-closed">Ferme</label>
+                                        <input type="checkbox" id="fry-closed" name="fry-closed">
                                     </div>
                                 </div>
                             </div>
@@ -152,13 +191,18 @@
                             <div class="accordion-body" >
                                 <div class="d-flex justify-content-around">
                                     <div>
-                                        <label for="mon_open">Ouverture :</label>
-                                        <input type="time">
+                                        <label for="sat-open">Ouverture :</label>
+                                        <input type="time" id="sat-open" name="sat-open" required>
                                     </div>
 
                                     <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
+                                        <label for="sat-close">Fermeture :</label>
+                                        <input type="time" id="sat-close" name="sat-close" required>
+                                    </div>
+
+                                    <div>
+                                        <label for="sat-closed">Ferme</label>
+                                        <input type="checkbox" id="sat-closed" name="sat-closed">
                                     </div>
                                 </div>
                             </div>
@@ -174,13 +218,18 @@
                             <div class="accordion-body" >
                                 <div class="d-flex justify-content-around">
                                     <div>
-                                        <label for="mon_open">Ouverture :</label>
-                                        <input type="time">
+                                        <label for="sun-open">Ouverture :</label>
+                                        <input type="time" id="sun-open" name="sun-open" required>
                                     </div>
 
                                     <div>
-                                        <label for="mon_open">Fermeture :</label>
-                                        <input type="time">
+                                        <label for="sun-close">Fermeture :</label>
+                                        <input type="time" id="sun-close" name="sun-close" required>
+                                    </div>
+
+                                    <div>
+                                        <label for="sun-closed">Ferme</label>
+                                        <input type="checkbox" id="sun-closed" name="sun-closed">
                                     </div>
                                 </div>
                             </div>
@@ -196,13 +245,13 @@
             <div class="col-6">
                 <div class="mb-3">
                     <label for="first_name" class="form-label">Prenom *</label>
-                    <input type="text" class="form-control" id="first_name" aria-describedby="first_name">
+                    <input type="text" class="form-control" id="first_name" name="first-name" aria-describedby="first_name">
                 </div>
             </div>
             <div class="col-6">
                 <div class="mb-3">
                     <label for="last_name" class="form-label">Nom de famille *</label>
-                    <input type="text" class="form-control" id="last_name" aria-describedby="last_name">
+                    <input type="text" class="form-control" id="last_name" name="last-name" aria-describedby="last_name">
                 </div>
             </div>
         </div>
@@ -212,34 +261,29 @@
         <div class="row">
             <div class="col-11">
                 <div class="mb-3">
-                    <input type="text" class="form-control" id="address" aria-describedby="address">
+                    <input type="text" class="form-control" id="address" name="address" aria-describedby="address">
                 </div>
             </div>
             <div class="col-1">
-                <button type="button" class="btn btn-primary">Search</button>
+                <button type="button" class="btn btn-primary" id="search-address-btn">Search</button>
             </div>
         </div>
         <div class="row">
             <div id="map" class="mb-5" style="width: 100%; height: 500px"></div>
         </div>
+        <div class="mb-2 d-flex justify-content-evenly">
+            <button type="button" id="cancel" class="btn btn-danger">Annuler</button>
+            <button type="button" id="send-btn" class="btn btn-success">Créer</button>
+        </div>
     </form>
 
     <script src="./Assets/JavaScript/Components/Shared/map.js" type="module"></script>
     <script type="module">
-        import {showMap,addMarker} from "./Assets/JavaScript/Components/Shared/map.js";
-        import {handleSellPoint, displaySellPoint} from "./Assets/JavaScript/Components/sell_point.js";
+        import {handleDisplaySellPoint} from "./Assets/JavaScript/Components/sell_point.js";
+        import {showMap} from "./Assets/JavaScript/Components/Shared/map.js";
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const URL = new URLSearchParams(window.location.search)
-            let component = URL.get('component')
-            let action = URL.get('action')
-            let id
-            const formElement = document.querySelector('#formSellPoint')
-            action === 'modify' ? id = URL.get('id') : null
-            let info = await handleSellPoint(component, action, id)
-            console.log(info)
-            displaySellPoint(formElement, info['infos'][0])
-            const map = showMap(info['infos'][0]['coordonate_x'], info['infos'][0]['coordonate_y'], 15)
-            addMarker(map,info['infos'][0])
+            const map = showMap(null, null, 6)
+            handleDisplaySellPoint(map)
         })
     </script>

@@ -2,7 +2,7 @@
     export const showToast = (message, color) => {
         const toastMessageElement = document.querySelector('#toast')
         const toastBody = toastMessageElement.querySelector('.toast-body')
-        const toastMessage = new bootstrap.Toast(toastMessageElement, {delay : 10000})
+        const toastMessage = new bootstrap.Toast(toastMessageElement, {delay : 7500})
         toastBody.innerHTML = ""
         toastBody.innerHTML = message
         if (toastMessageElement.classList.contains("text-bg-success")){
