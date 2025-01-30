@@ -2,16 +2,16 @@ import {showToast} from "./Shared/toast.js";
 import {closeModal, showModal} from "./Shared/modal.js";
 import {createOrModifySellPoint, getInfo, getGroupName} from "../Services/sell_point.js";
 import {addMarker, addPopUp, updateView} from "./Shared/map.js";
-import {DAY_OF_THE_WEEK} from "../Config/constant.js";
+import {DAY_OF_THE_WEEK, UPLOADPATH} from "../Config/constant.js";
 
 
     export const handleComponent = async (component, action = null, id = null) => {
             let info
             if (action === 'modify'){
-                 info = await getInfo(component, action, id)
+                info = await getInfo(component, action, id)
             }
             if (info['errors']){
-                showToast(info['message'], 'bg-danger')
+                showToast(info['errors'], 'bg-danger')
             } else {
                 return info
             }
@@ -106,6 +106,7 @@ import {DAY_OF_THE_WEEK} from "../Config/constant.js";
 
     export const handleAddress = (map, marker = null, infos = null) => {
         const searchBtn = document.querySelector('#search-address-btn')
+        const URL = new URLSearchParams(window.location.search)
         searchBtn.addEventListener('click', async () => {
             const address = document.querySelector('#address').value
             const result = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURI(address)}`)
@@ -133,7 +134,9 @@ import {DAY_OF_THE_WEEK} from "../Config/constant.js";
                         marker !== null ? map.removeLayer(marker) : null
                         map = updateView(map, coordonates, 16)
                         marker = addMarker(map,coordonates)
-                        infos !== null && marker !== null ? addPopUp(marker, infos['infos'][0]) : null
+                        if (URL.get('action') === 'modify'){
+                            addPopUp(marker, infos['infos'][0])
+                        }
 
                     })
                 }
@@ -198,9 +201,10 @@ import {DAY_OF_THE_WEEK} from "../Config/constant.js";
         form.elements['first_name'].value = info['first_name_director']
         form.elements['last_name'].value = info['last_name_director']
         form.elements['address'].value = info['label']
+        form.elements['image'].required = false
 
         img.classList.remove('d-none')
-        img.src = info['image']
+        img.src = UPLOADPATH + info['image']
 
     }
 

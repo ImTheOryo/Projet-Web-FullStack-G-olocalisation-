@@ -29,13 +29,8 @@
         </div>
         <div class="row">
             <h3 class="text-center">Devanture</h3>
-            <div class="col-11">
+            <div class="col-12">
                 <input type="file" class="form-control" id="image" name="image" required>
-            </div>
-            <div class="col-1">
-                <button class="btn btn-danger" type="button" id="delete-img">
-                    <i class="fa-regular fa-trash-can"></i>
-                </button>
             </div>
             <div class="col-11 d-flex justify-content-center">
                 <img src="" style="max-height: 500px; max-width: 500px" id="display-img" alt="devanture" class="d-none">

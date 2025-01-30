@@ -8,18 +8,23 @@
     require './Includes/database.php';
 
     use GuzzleHttp\Client;
-    use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Request;
 
     function addRealAddress($faker)
     {
         $street_name = $faker -> streetAddress();
         $street_name = str_replace(" ", "+", $street_name);
-
         $client = new Client();
-        $request = new Request('GET', 'https://api-adresse.data.gouv.fr/search/?q='.$street_name.'&limit=1 ');
+        try {
+            $request = new Request('GET', 'https://api-adresse.data.gouv.fr/search/?q='.$street_name.'&limit=1 ');
+        } catch (RequestException $e) {
+            echo('EXCEPTION==>' . $e->getMessage());
+        }
         $res = $client->sendAsync($request)->wait();
         $res_body = $res->getBody();
         $data = json_decode($res_body, true);
+        var_dump($data['features'][0]['properties']['label']);
         isset($data['features'][0]['properties']['label']) ? null : addRealAddress($faker);
 
         return $data;
@@ -147,8 +152,7 @@
         $state -> closeCursor();
     }
 
-    for ($i = 0; $i < 50; $i++){
-
+    for ($i = 0; $i < 25; $i++){
         $state = $pdo -> prepare("INSERT INTO users (username, password, mail, enabled) VALUES (:username, :password, :mail, :enabled)");
         $state -> bindValue(':username', $faker -> userName());
         $state -> bindValue(':mail', $faker -> email());
@@ -161,6 +165,9 @@
             echo  $e ->getMessage();
         }
         $state -> closeCursor();
+    }
+
+    for ($i = 0; $i < 50; $i++){
 
         $data = addRealAddress($faker);
 
@@ -202,7 +209,7 @@
         $state -> bindValue(':id_group_name', $group);
         $state -> bindValue(':siret', $siret);
         $state -> bindValue(':id_address', $last_id_address);
-        $state -> bindValue(':image', "https://images.pexels.com/photos/3714786/pexels-photo-3714786.jpeg");
+        $state -> bindValue(':image', "6799f92b909dd.png");
         $state -> bindValue(':last_name', $faker -> lastName());
         $state -> bindValue(':first_name', $faker -> firstName());
         $state -> bindValue(':schedule',json_encode($schedule));

@@ -64,7 +64,7 @@
         }
     }
 
-    function createSellPoint(PDO $pdo, array $data, array $address, string $departement)
+    function createSellPoint(PDO $pdo, array $data, array $address, string $departement, null |string $imagename = null )
     {
         $state = $pdo -> prepare('INSERT INTO `address` (`label`, `departement`, `coordonate_x`, `coordonate_y`) VALUES ( :label, :departement, :x, :y);');
         $state -> bindValue(':departement', $departement);
@@ -84,7 +84,7 @@
         $state -> bindValue(':group', $data['group'], PDO::PARAM_NULL || PDO::PARAM_INT);
         $state -> bindValue(':siret', $data['siren']);
         $state -> bindValue(':id_address', $idAddress);
-        $state -> bindValue(':img', 'test');
+        $state -> bindValue(':img', $imagename);
         $state -> bindValue(':last_name', $data['last_name']);
         $state -> bindValue(':first_name', $data['first_name']);
         $state -> bindValue(':schedule', $data['schedule']);
@@ -139,6 +139,31 @@
         $state -> bindValue(':first_name', $data['first_name']);
         $state -> bindValue(':schedule', $data['schedule']);
         $state -> bindValue(':siret', $data['siren']);
+        try {
+            $state -> execute();
+            return true;
+        } catch (PDOException $e){
+            return $e -> getMessage();
+        }
+    }
+
+    function getImageName(PDO $pdo, int $id)
+    {
+        $state = $pdo -> prepare("SELECT image FROM sell_points WHERE id = :id");
+        $state -> bindValue(':id', $id);
+        try {
+            $state -> execute();
+            return $state -> fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e){
+            return $e -> getMessage();
+        }
+    }
+
+    function updateSellPointImage(PDO $pdo, int $id, string $image)
+    {
+        $state = $pdo -> prepare("UPDATE sell_points SET image = :image WHERE id = :id");
+        $state -> bindValue(':id', $id);
+        $state -> bindValue(':image', $image);
         try {
             $state -> execute();
             return true;

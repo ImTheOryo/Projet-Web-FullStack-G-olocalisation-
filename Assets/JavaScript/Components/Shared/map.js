@@ -1,4 +1,4 @@
-import {DEFAULT_COORDONATE} from "../../Config/constant.js";
+import {DEFAULT_COORDONATE, UPLOADPATH} from "../../Config/constant.js";
 import {getGeoJson} from "../../Services/Shared/map.js";
 
     export const showMap = (x = null, y = null, zoom = null) => {
@@ -120,7 +120,7 @@ import {getGeoJson} from "../../Services/Shared/map.js";
         let message
         if (infos['name'] !== null){
             message =  `<h5>${infos['name']}</h5>
-                                <img src="${infos['image']}" alt="The Front of the store" style="width: 200px">
+                                <img src="${UPLOADPATH + infos['image']}" alt="The Front of the store" style="width: 200px">
                                 <p>Adresse : ${infos['label']}</p>
                                 Horraire d'ouverture : <br/>
             `

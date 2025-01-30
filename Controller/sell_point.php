@@ -16,6 +16,11 @@ use GuzzleHttp\Psr7\Request;
         $tab['last_name'] = cleanString($data['last-name']);
         $tab['address'] = cleanString($data['address']);
         $tab['schedule'] = $data['schedule'];
+        $tab['image'] = !empty($_FILES['image']['name']) ? $_FILES['image']['name'] : null;
+        $tab['path'] = !empty($_FILES['image']['tmp_name']) ? $_FILES['image']['tmp_name'] : null;
+        if (!empty($tab['image'])) {
+            $tab['ext'] = pathinfo($_FILES['image']['name'],PATHINFO_EXTENSION);
+        }
         return $tab;
     }
 
@@ -49,30 +54,20 @@ use GuzzleHttp\Psr7\Request;
                 case 'group':
                     $groups = getGroupsInfos($pdo);
                     if (is_array($groups)){
-                        header('Content-type: application/json');
-                        echo json_encode(['infos' => $groups]);
-                        exit();
+                        responseJSON('infos', $groups);
                     } else {
-                        header("Content-Type: application/json");
-                        echo json_encode(['errors' => 'Une erreur est survenue lors de la récupération des groupes']);
-                        exit();
+                        responseJSON('errors', 'Une erreur est survenue lors de la récupération des groupes');
                     }
                 case 'modify':
                     $id = isset($_GET['id']) ? cleanString($_GET['id']) : null;
                     if (!is_numeric($id)){
-                        header("Content-Type: application/json");
-                        echo json_encode(['errors' => 'ID au mauvais format']);
-                        exit();
+                        responseJSON('errors', 'ID au mauvais format');
                     }
                     $sellPointInfo = getSellPointInfos($pdo, $id);
                     if (is_array($sellPointInfo)){
-                        header("Content-Type: application/json");
-                        echo json_encode(['infos' => $sellPointInfo]);
-                        exit();
+                        responseJSON('infos', $sellPointInfo);
                     } else {
-                        header("Content-Type: application/json");
-                        echo json_encode(['errors' => true,'message' => "Erreur lors de la recuperation des donnees : $sellPointInfo"]);
-                        exit();
+                        responseJSON('errors', 'Erreur lors de la recuperation des donnees :' . $sellPointInfo);
                     }
 
                 case 'modification' :
@@ -84,78 +79,80 @@ use GuzzleHttp\Psr7\Request;
 
 
                         if (strlen($tab['address']) < 5){
-                            header("Content-Type: application/json");
-                            echo json_encode(['errors' => 'L adresse est trop courte']);
-                            exit();
+                            responseJSON('errors', 'Adresse invalide');
                         }
                     } else {
-                        header("Content-Type: application/json");
-                        echo json_encode(['errors' => 'L adresse est trop courte']);
-                        exit();
+                        responseJSON('errors', 'Adresse trop courte');
                     }
                     $address = addressAPI($tab['address']);
                     if (isset($address['status'])){
-                        header("Content-Type: application/json");
-                        echo json_encode(['errors' => 'Veuillez transmettre une adresse valide']);
-                        exit();
+                        responseJSON('errors', 'Veuillez transmettre une adresse valide');
                     }
                     $departement = departementAPI($address);
                     $id = isset($_GET['id']) ? cleanString($_GET['id']) : null;
 
                     if (!is_numeric($id)){
-                        header("Content-Type: application/json");
-                        echo json_encode(['errors' => 'ID au mauvais format']);
-                        exit();
+                        responseJSON('errors', 'ID au mauvais format');
+                    }
+
+                    if ($tab['image'] !== null){
+                        $lastImage = getImageName($pdo,  $id);
+
+                        try {
+                            $uniqueFileName = $tab['path'] !== null ? uniqid() . '.' . $tab['ext'] : null;
+                            move_uploaded_file($tab['path'], $_SERVER['DOCUMENT_ROOT'] . UPLOAD_DIRECTORY . $uniqueFileName);
+                        } catch (Exception $e) {
+                            responseJSON('errors', 'Erreur lors de la sauvegarde de l\'image sur le serveur ' );
+                        }
+
+                        $res = updateSellPointImage($pdo, $id, $uniqueFileName);
+
+                        if ($res) {
+                            if (file_exists($_SERVER['DOCUMENT_ROOT'] . UPLOAD_DIRECTORY . $lastImage['image'])) {
+                                try {
+                                    unlink($_SERVER['DOCUMENT_ROOT'] . UPLOAD_DIRECTORY . $lastImage['image']);
+                                } catch (Exception $e) {
+                                    responseJSON('errors', 'Erreur lors de la suppression de l\'image | ErrorCode:' . $e -> getMessage());
+                                }
+                            }
+                        } else {
+                            responseJSON('errors', 'Erreur lors de la suppression de l\'ancienne image');
+                        }
                     }
 
                     $res = updateSellPoint($pdo, $id, $tab, $address['features'][0], $departement);
 
                     if ($res){
-                        header("Content-Type: application/json");
-                        echo json_encode(['success' => $res]);
-                        exit();
+                        responseJSON('success', $res);
                     } else {
-                        header("Content-Type: application/json");
-                        echo json_encode(['errors' => $res]);
-                        exit();
+                        responseJSON('errors', $res);
                     }
 
                 case 'create' :
-                    var_dump($_SERVER);
-                    var_dump($_FILES);
                     $tab = [];
                     $tab = prepareData($_POST);
 
                     if (is_string($tab['address'])){
                         $tab['address'] = str_replace(' ', '', $tab['address']);
                         if (strlen($tab['address']) < 5){
-                            header("Content-Type: application/json");
-                            echo json_encode(['errors' => 'L adresse est trop courte']);
-                            exit();
+                            responseJSON('errors', 'Adresse trop courte');
                         }
                     } else {
-                        header("Content-Type: application/json");
-                        echo json_encode(['errors' => 'L adresse est trop courte']);
-                        exit();
+                        responseJSON('errors', 'Adresse trop courte');
                     }
                     $address = addressAPI($tab['address']);
                     if (isset($address['status'])){
-                        header("Content-Type: application/json");
-                        echo json_encode(['errors' => 'Veuillez transmettre une adresse valide']);
-                        exit();
+                        responseJSON('errors', 'Veuillez transmettre une adresse valide');
                     }
 
                     $departement = departementAPI($address);
-
-                    $res = createSellPoint($pdo, $tab, $address['features'][0], $departement);
+                    $uniqueFileName = $tab['path'] !== null ? uniqid() . '.' . $tab['ext'] : null;
+                    move_uploaded_file($tab['path'], $_SERVER['DOCUMENT_ROOT'] . UPLOAD_DIRECTORY . $uniqueFileName);
+                    $res = createSellPoint($pdo, $tab, $address['features'][0], $departement, $uniqueFileName);
                     if ($res){
-                        header("Content-Type: application/json");
-                        echo json_encode(['success' => $res]);
-                        exit();
+                        responseJSON('success', $res);
                     } else {
-                        header("Content-Type: application/json");
-                        echo json_encode(['errors' => $res]);
-                        exit();
+                        responseJSON('errors', $res);
                     }
             }
         }

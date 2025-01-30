@@ -9,3 +9,5 @@
         [
             "mon", "tue", "wen", "thu", "fry", "sat", "sun"
         ]
+
+    export const UPLOADPATH = '/Upload/'
