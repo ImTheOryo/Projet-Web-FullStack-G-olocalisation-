@@ -2,7 +2,7 @@
 ## How to use it ? 
 
 1) Git clone the project onto your computer
-2) Use the dump of the DataBase into your database
+2) Use the dump `WFS.sql` of the DataBase into your database
 3) Copy the .env dist and make it yours
 4) Use the command `composer install` 
 5) After using `composer install` use the command `php script/fixture.php`. 
