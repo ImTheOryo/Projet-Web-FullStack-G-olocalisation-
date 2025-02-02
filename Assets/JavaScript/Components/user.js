@@ -12,13 +12,14 @@ export const handleLogIn = () => {
                 return false
             }
             isValidUser = await verifyUser(userForm)
+            console.log(isValidUser)
 
-            if (isValidUser['auth'] === true){
+            if (isValidUser['auth'] === "1"){
                 showToast('Connexion réussie', 'bg-success')
                 location.replace('index.php?component=map');
 
             } else {
-                showToast('Une erreur est survenue', 'bg-danger')
+                showToast(`Une erreur est survenue ${isValidUser['errors']}`, 'bg-danger')
             }
         })
     }

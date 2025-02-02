@@ -23,19 +23,13 @@
             case 'modify':
                 $id = (int) cleanString($_GET['id']);
                 if (!is_numeric($id)){
-                    header("Content-Type: application/json");
-                    echo json_encode(['errors' => 'ID au mauvais format']);
-                    exit();
+                    responseJSON('errors', 'ID au mauvais format');
                 }
                 $UserInfo = getUserInfo($pdo, $id);
                 if (is_array($UserInfo)){
-                    header("Content-Type: application/json");
-                    echo json_encode(['infos' => $UserInfo]);
-                    exit();
+                    responseJSON('infos', $UserInfo);
                 } else {
-                    header("Content-Type: application/json");
-                    echo json_encode(['errors' => true,'message' => "Erreur lors de la recuperation des donnees : $UserInfo"]);
-                    exit();
+                    responseJSON('errors', 'Erreur lors de la récupération des données : ' . $UserInfo);
                 }
             case 'modification':
                 $id = (int) cleanString($_GET['id']);
@@ -43,57 +37,41 @@
                 $count = verifyUsername($pdo, $data['username'], $id);
 
                 if ($count['user_number'] > 0){
-                    header("Content-Type: application/json");
-                    echo json_encode(['errors' => 'Le Username est deja utilise']);
-                    exit();
+                    responseJSON('errors', 'Username not available');
                 }
                 if (!empty($data['password']) && !empty($data['password-confirm']) && $data['password'] === $data['password-confirm']){
                    $data['password-confirm'] = '';
                    $pass = changeUserPassword($pdo, $data['password'], $id);
                     if (is_array($pass)){
-                        header("Content-Type: application/json");
-                        echo json_encode(['infos' => $pass]);
-                        exit();
+                        responseJSON('infos', $pass);
                     }
                 }
 
                 $res = changeUserInfos($pdo, $id, $data);
                 if ($res){
-                    header("Content-Type: application/json");
-                    echo json_encode(['success' => true]);
-                    exit();
+                    responseJSON('success', true);
                 } else {
-                    header("Content-Type: application/json");
-                    echo json_encode(['errors' => true,'message' => "Erreur lors de la recuperation des donnees : $res"]);
-                    exit();
+                    responseJSON('errors', 'Erreur lors de la récupération des données : ' . $res);
                 }
             case 'create':
                 $data = prepareUserData($_POST);
                 $count = verifyUsername($pdo, $data['username']);
 
                 if ($count['user_number'] > 0){
-                    header("Content-Type: application/json");
-                    echo json_encode(['errors' => 'Le Username est deja utilise']);
-                    exit();
+                    responseJSON('errors', 'Username not available');
                 }
                 if ($data['password'] === $data['confirm-password']){
                     $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
                     $data['confirm-password'] = '';
                 } else {
-                    header("Content-Type: application/json");
-                    echo json_encode(['errors' => 'Les mots de passe ne correspondent pas']);
-                    exit();
+                    responseJSON('errors', 'Les mots de passe ne correspondent pas');
                 }
 
                 $res = createNewUser($pdo, $data);
                 if ($res){
-                    header("Content-Type: application/json");
-                    echo json_encode(['success' => true]);
-                    exit();
+                    responseJSON('success', true);
                 } else {
-                    header("Content-Type: application/json");
-                    echo json_encode(['errors' => true,'message' => "Erreur lors de la creation du user : $res"]);
-                    exit();
+                    responseJSON('errors', 'Erreur lors de la création du User');
                 }
         }
     }

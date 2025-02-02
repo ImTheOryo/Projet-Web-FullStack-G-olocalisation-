@@ -78,12 +78,12 @@
 
                 if (window.confirm(`Voulez-vous vraiment supprimer ${data['infos'][place]['name']} ?`)){
                     const reset = await deleteSellPoint(id)
-                    if (reset.hasOwnProperty('success')){
+                    if (reset['success']){
                         showToast('Le sell point a ete supprime', 'bg-success')
                         await displaySellPoints(component, spinner, tbody, page, limit, sortBy, pageCountElement, maxPage)
 
                     } else {
-                        showToast(`Une erreur est survenue : ${reset}`, 'bg-danger')
+                        showToast(`Une erreur est survenue : ${reset['errors']}`, 'bg-danger')
                     }
                 }
             })

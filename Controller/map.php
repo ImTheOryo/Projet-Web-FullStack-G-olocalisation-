@@ -15,28 +15,17 @@
                     $sellPointsInfos = getSellPointsInfos($pdo);
 
                     if (is_array($sellPointsInfos)){
-                        header("Content-Type: application/json");
-                        echo json_encode(['infos' => $sellPointsInfos]);
-                        exit();
+                        responseJSON('infos', $sellPointsInfos);
                     } else {
-
-                        header("Content-Type: application/json");
-                        echo json_encode(['errors' => true,'message' => "Erreur lors de la recuperation des donnees"]);
-                        exit();
+                        responseJSON('errors', 'Erreur lors de la récupération des données');
                     }
                 case 'getGeoJson':
                     $geoJSON = getGeoJSON($pdo);
 
-
                     if (is_array($geoJSON)){
-                        header("Content-Type: application/json");
-                        echo json_encode(['infos' => $geoJSON]);
-                        exit();
+                        responseJSON('infos', $geoJSON);
                     } else {
-
-                        header("Content-Type: application/json");
-                        echo json_encode(['errors' => true,'message' => "Erreur lors des donnees des departements"]);
-                        exit();
+                        responseJSON('errors', 'Erreur lors de la récupération des données départementales');
                     }
             }
         }

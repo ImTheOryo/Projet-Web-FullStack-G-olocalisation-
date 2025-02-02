@@ -69,12 +69,12 @@
 
                 if (window.confirm(`Voulez-vous vraiment supprimer ${data['infos'][place]['username']} ?`)){
                     const reset = await deleteUser(id)
-                    if (reset.hasOwnProperty('success')){
+                    if (reset['success']){
                         showToast('Le user a ete supprime', 'bg-success')
                         await displayUsers(component, spinner, tbody, page, limit, sortBy, pageCountElement, maxPage)
 
                     } else {
-                        showToast(`Une erreur est survenue : ${reset}`, 'bg-danger')
+                        showToast(`Une erreur est survenue : ${reset['errors']}`, 'bg-danger')
                         await displayUsers(component, spinner, tbody, page, limit, sortBy, pageCountElement, maxPage)
                     }
                 }

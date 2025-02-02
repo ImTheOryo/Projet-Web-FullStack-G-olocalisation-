@@ -89,11 +89,11 @@ import {DAY_OF_THE_WEEK, UPLOADPATH} from "../Config/constant.js";
             switch (action){
                 case 'create':
                     handleDisplaySellPoint(map)
-                    showToast(`L'utilisateur a été crée`, 'bg-success')
+                    showToast(`Le sell point a été crée`, 'bg-success')
                     break
                 case 'modification':
                     handleDisplaySellPoint(map)
-                    showToast(`L'utilisateur a été modifier`, 'bg-success')
+                    showToast(`Le sell point a été modifier`, 'bg-success')
                     break
             }
         }

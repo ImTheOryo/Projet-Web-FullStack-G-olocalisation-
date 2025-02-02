@@ -1,3 +1,6 @@
 .idea/
 vendor/
 .env
+Upload/
+!Upload/departements.geojson
+!Upload/6799f92b909dd.png

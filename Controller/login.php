@@ -17,14 +17,9 @@
                 $_SESSION['auth'] = true;
                 $_SESSION['user_id'] = $userInfos['id'];
                 $_SESSION['user_username'] = $userInfos['username'];
-                header("Content-Type: application/json");
-                echo json_encode(['auth' => true]);
-                exit();
+                responseJSON('auth', true);
             } else {
-                $errors[] = "L'identification a echoue";
-                header("Content-Type: application/json");
-                echo json_encode(['errors' => $errors]);
-                exit();
+                responseJSON('errors', 'l\'identification a échoué' );
             }
         }
         }

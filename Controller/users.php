@@ -16,48 +16,32 @@
                 $sortBy  = isset($_GET['sortBy']) ? cleanString($_GET['sortBy']) : null;
                 $userInfos = getUsersInfos($pdo, $limit, $page, $sortBy);
                 if (is_array($userInfos)){
-                    header("Content-Type: application/json");
-                    echo json_encode(['infos' => $userInfos]);
-                    exit();
+                    responseJSON('infos', $userInfos);
                 } else {
-                    header("Content-Type: application/json");
-                    echo json_encode(['errors' => true,'message' => "Erreur lors de la recuperation des donnees : $sellPointsInfos"]);
-                    exit();
+                    responseJSON('errors', 'Erreur lors de le récupération des données');
                 }
 
             case 'count':
                 $count = getUsersCount($pdo);
 
                 if (is_array($count)){
-                    header("Content-Type: application/json");
-                    echo json_encode(['infos' => $count]);
-                    exit();
+                    responseJSON('infos', $count);
                 } else {
-                    header("Content-Type: application/json");
-                    echo json_encode(['errors' => true,'message' => "Erreur lors du comptage"]);
-                    exit();
+                    responseJSON('errors', 'Erreur lors du compte');
                 }
             case 'delete':
                 $id = isset($_GET['id']) ? (int)cleanString($_GET['id']) : null;
                 if (!is_int($id)){
-                    header("Content-Type: application/json");
-                    echo json_encode(['errors' => true, 'message' => "ID est donner au mauvais format"]);
-                    exit();
+                    responseJSON('errors', 'ID au mauvais format');
                 }
                 $deleteUser = deleteUser($pdo, $id);
                 if ($deleteUser){
-                    header("Content-Type: application/json");
-                    echo json_encode(['success' => true]);
-                    exit();
+                    responseJSON('success', true);
                 } else {
-                    header("Content-Type: application/json");
-                    echo json_encode(['errors' => true, 'message' => $deleteUser]);
-                    exit();
+                    responseJSON('errors', $deleteUser);
                 }
             default:
-                header("Content-Type: application/json");
-                echo json_encode(['errors' => true, 'message' => "Action not define"]);
-                exit();
+                responseJSON('errors', 'Action inconnu');
         }
     }
     require "View/users.php";

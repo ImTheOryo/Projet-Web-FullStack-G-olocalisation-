@@ -53,6 +53,7 @@
 
     function createNewUser(PDO $pdo, array $data)
     {
+        $data['enabled'] === true ? $data['enabled'] = 1 : $data['enabled'] = 0;
         $state = $pdo -> prepare('INSERT INTO users (username, password, mail, enabled) VALUES (:username, :password, :mail, :enabled)');
         $state -> bindParam(':username', $data['username']);
         $state -> bindParam(':password', $data['password']);
